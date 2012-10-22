@@ -2,7 +2,7 @@ var prompt = require('prompt'),
     path = require('path'),
     fs = require('fs-extra');
 
-var TEMPLATE_DIRECTORY = './template';
+var TEMPLATE_DIRECTORY = __dirname + '/../template';
 
 prompt.start();
 
@@ -36,7 +36,7 @@ prompt.get(schema, function(error, result) {
   console.log(result.packageName);
   console.log(result.repositoryName);
   console.log(result.shortDescription);
-
+  
   fs.copy(TEMPLATE_DIRECTORY, process.cwd(), function(error) {
     if (error) {
       console.error(error);

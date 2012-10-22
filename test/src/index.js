@@ -39,7 +39,7 @@ describe('npm-package', function() {
     });
   });
 
-  it('should copy the template files and folders into the current directory', function(done) {
+  it('should copy the template files and folders into the current directory and apply defaults', function(done) {
     var savedError;
     var files = getFiles(templateDirectory);
     var child = spawn('node', ['../../../'], {
@@ -60,50 +60,21 @@ describe('npm-package', function() {
         done(savedError);
       } else {
         var newFiles = getFiles(testOutputDirectory);
-        console.log(files);
-        console.log(newFiles);
-        expect(newFiles).to.equal(files);
+        expect(newFiles).to.deep.equal(files);
         for (var i = 0; i < files.length; i++) {
-          var templateFile = fs.readfileSync(templateDirectory + '/' + files[i]);
-          var outputFile = fs.readfileSync(testOutputDirectory + '/' + files[i]);
-          expect(outputFile).to.equal(templateFile);
+          if (fs.statSync(templateDirectory + '/' + files[i]).isDirectory()) {
+            expect(fs.statSync(templateDirectory + '/' + files[i]).isDirectory()).to.equal(true);
+          } else {
+            var templateFile = fs.readFileSync(templateDirectory + '/' + files[i], 'utf8');
+            // templateFile = templateFile.replace('%PACKAGE_NAME%', testOutputDirectoryName);
+            // templateFile = templateFile.replace('%REPOSITORY_NAME%', testOutputDirectoryName);
+            // templateFile = templateFile.replace('%SHORT_DESCRIPTION%', '');
+            var outputFile = fs.readFileSync(testOutputDirectory + '/' + files[i], 'utf8');
+            expect(outputFile).to.equal(templateFile);
+          }
         }
+        done();
       }
-    });
-  });
-
-  it('should assign correct defaults', function(done) {
-    var checklist = new Checklist([
-      'npm-package: Package name: (' + testOutputDirectoryName + ') ' +
-      'npm-package: Repository name: (' + testOutputDirectoryName + ') ' +
-      'npm-package: Short description: ' +
-      testOutputDirectoryName + '\n' +
-      testOutputDirectoryName + '\n' +
-      '\n',
-      0,
-      null
-    ], done);
-    var result = '';
-    var child = spawn('node', ['../../../'], {
-      cwd: testOutputDirectory,
-      stdio: 'pipe',
-      detached: false
-    });
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', function(data) {
-      // should not get here so this will
-      // cause checklist to report the error
-      checklist.check(new Error(data));
-    });
-    child.stdout.setEncoding('utf8');
-    child.stdout.on('data', function(data) {
-      result += data;
-      child.stdin.write('\n');
-    });
-    child.on('exit', function(code, signal) {
-      checklist.check(result);
-      checklist.check(code);
-      checklist.check(signal);
     });
   });
 
