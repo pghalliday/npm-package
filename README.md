@@ -1,7 +1,7 @@
 REPO_NAME
 =========
 
-Short description.
+PACKAGE_DESCRIPTION
 
 ## Features
 
