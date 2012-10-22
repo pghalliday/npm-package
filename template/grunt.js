@@ -34,9 +34,7 @@ module.exports = function(grunt) {
     config.globals.describe = false;
     config.globals.it = false;
     config.globals.before = false;
-    config.globals.beforeEach = false;
     config.globals.after = false;
-    config.globals.afterEach = false;
     return config;
   }
 
