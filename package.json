@@ -1,8 +1,8 @@
 {
   "name": "npm-package",
   "description": "Command line tool to intitiate a blank npm compatible package with my preferred structure, etc",
-  "version": "0.0.0",
-  "homepage": "https://github.com/pghalliday/npm-package-boilerplate.git",
+  "version": "0.0.1",
+  "homepage": "https://github.com/pghalliday/npm-package.git",
   "author": {
     "name": "Peter Halliday",
     "email": "pghalliday@gmail.com",
@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/pghalliday/npm-package-boilerplate.git"
+    "url": "git://github.com/pghalliday/npm-package.git"
   },
   "bugs": {
-    "url": "https://github.com/pghalliday/npm-package-boilerplate/issues"
+    "url": "https://github.com/pghalliday/npm-package/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/pghalliday/npm-package-boilerplate/blob/master/LICENSE-MIT"
+      "url": "https://github.com/pghalliday/npm-package/blob/master/LICENSE-MIT"
     }
   ],
   "main": "./src/index.js",
