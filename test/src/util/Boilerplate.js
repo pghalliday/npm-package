@@ -108,7 +108,7 @@ describe('Boilerplate', function() {
     it('should fail gracefully on errors', function(done) {
       var boilerplate = new Boilerplate(TEST_TEMPLATE_DIRECTORY, [{
         what: 'Hello.txt',
-        with: 'This isn\'t a valid file name|'
+        with: 'Cannot create/directories'
       }]);
       boilerplate.generate(TEST_OUTPUT_DIRECTORY, function(error) {
         expect(error).to.be.an('array');
