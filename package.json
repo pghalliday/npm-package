@@ -1,7 +1,7 @@
 {
   "name": "npm-package",
   "description": "Command line tool to intitiate a blank npm compatible package with my preferred structure, etc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/pghalliday/npm-package.git",
   "author": {
     "name": "Peter Halliday",

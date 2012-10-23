@@ -8,6 +8,7 @@ Command line tool to intitiate a blank npm compatible package with my preferred 
 - should copy the template files into the current directory
 - should default repository and package names based on the current directory name
 - should take command line input for package specific fields
+- should make grunt script executable and install package dependencies
 
 ## Installation
 
