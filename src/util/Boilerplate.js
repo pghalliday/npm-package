@@ -19,7 +19,7 @@ function Boilerplate(template, replacements) {
               var targetName = file;
               if (replacements) {
                 replacements.forEach(function(replacement) {
-                  targetName = targetName.replace(replacement.what, replacement.with);
+                  targetName = targetName.replace(new RegExp(replacement.what, 'g'), replacement.with);
                 });
               }
               var targetPath = target + '/' + targetName;
@@ -39,7 +39,7 @@ function Boilerplate(template, replacements) {
                          checklist.check(file, error);
                         } else {
                           replacements.forEach(function(replacement) {
-                            buffer = buffer.replace(replacement.what, replacement.with);
+                            buffer = buffer.replace(new RegExp(replacement.what, 'g'), replacement.with);
                           });
                           fs.writeFile(targetPath, buffer, 'utf8', function(error) {
                             checklist.check(file, error);

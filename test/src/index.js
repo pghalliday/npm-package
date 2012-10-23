@@ -66,9 +66,9 @@ describe('npm-package', function() {
             expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
           } else {
             var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
-            templateFile = templateFile.replace('%PACKAGE_NAME%', TEST_OUTPUT_DIRECTORY_NAME);
-            templateFile = templateFile.replace('%REPOSITORY_NAME%', TEST_OUTPUT_DIRECTORY_NAME);
-            templateFile = templateFile.replace('%SHORT_DESCRIPTION%', '');
+            templateFile = templateFile.replace(/%PACKAGE_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
+            templateFile = templateFile.replace(/%REPOSITORY_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
+            templateFile = templateFile.replace(/%SHORT_DESCRIPTION%/g, '');
             var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + files[i], 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
@@ -111,9 +111,9 @@ describe('npm-package', function() {
             expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
           } else {
             var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
-            templateFile = templateFile.replace('%PACKAGE_NAME%', 'apple');
-            templateFile = templateFile.replace('%REPOSITORY_NAME%', 'banana');
-            templateFile = templateFile.replace('%SHORT_DESCRIPTION%', 'pear');
+            templateFile = templateFile.replace(/%PACKAGE_NAME%/g, 'apple');
+            templateFile = templateFile.replace(/%REPOSITORY_NAME%/g, 'banana');
+            templateFile = templateFile.replace(/%SHORT_DESCRIPTION%/g, 'pear');
             var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + files[i], 'utf8');
             expect(outputFile).to.equal(templateFile);
           }

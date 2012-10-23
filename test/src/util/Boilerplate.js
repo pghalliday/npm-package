@@ -5,14 +5,11 @@ var expect = require('chai').expect,
 var TEST_TEMPLATE_DIRECTORY = __dirname + '/../../sandbox/TestTemplate',
     TEST_OUTPUT_DIRECTORY = __dirname + '/../../sandbox/TestOutput',
     REPLACEMENTS = [{
-      what: 'Hello',
-      with: 'Hello2'
+      what: 'l',
+      with: 'r'
     }, {
       what: 'foo',
       with: 'foo2'
-    }, {
-      what: 'apple',
-      with: 'apple2'
     }];
 
 
@@ -80,9 +77,9 @@ describe('Boilerplate', function() {
         expect(error).to.be.an('undefined');
         var expectedFiles = [];
         files.forEach(function(file) {
-          file = file.replace('Hello', 'Hello2');
-          file = file.replace('foo', 'foo2');
-          file = file.replace('apple', 'apple2');
+          file = file.replace(/l/g, 'r');
+          file = file.replace(/foo/g, 'foo2');
+          file = file.replace(/apple/g, 'apple2');
           expectedFiles.push(file);
         });
         var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
@@ -94,9 +91,9 @@ describe('Boilerplate', function() {
             expect(fs.statSync(outputPath).isDirectory()).to.equal(true);
           } else {
             var templateFile = fs.readFileSync(templatePath, 'utf8');
-            templateFile = templateFile.replace('Hello', 'Hello2');
-            templateFile = templateFile.replace('foo', 'foo2');
-            templateFile = templateFile.replace('apple', 'apple2');
+            templateFile = templateFile.replace(/l/g, 'r');
+            templateFile = templateFile.replace(/foo/g, 'foo2');
+            templateFile = templateFile.replace(/apple/g, 'apple2');
             var outputFile = fs.readFileSync(outputPath, 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
