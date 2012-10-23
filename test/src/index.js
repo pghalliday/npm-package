@@ -149,6 +149,40 @@ describe('npm-package', function() {
       }
     });
   });
+  
+  it('should make grunt.sh or grunt.bat executable', function(done) {
+    var savedError;
+    var files = getFiles(TEMPLATE_DIRECTORY);
+    var child = spawn('node', ['../../../bin/npm-package'], {
+      cwd: TEST_OUTPUT_DIRECTORY,
+      stdio: 'pipe',
+      detached: false
+    });
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', function(data) {
+      savedError = new Error(data);
+    });
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', function(data) {
+      child.stdin.write('\n');
+    });
+    child.on('exit', function(code, signal) {
+      if (savedError) {
+        done(savedError);
+      } else {
+        var gruntCommand = process.platform === 'win32' ? '.\\grunt.bat' : './grunt.sh';
+        var child = spawn(gruntCommand, [], {
+          cwd: TEST_OUTPUT_DIRECTORY,
+          stdio: 'pipe',
+          detached: false
+        });
+        child.on('exit', function(code, signal) {
+          expect(code).to.equal(0);
+          done();
+        });
+      }
+    });
+  });
 });
     
 

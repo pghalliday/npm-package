@@ -2,7 +2,8 @@ module.exports = function(callback) {
   var prompt = require('prompt'),
       path = require('path'),
       fs = require('fs'),
-      Boilerplate = require('./util/Boilerplate');
+      Boilerplate = require('./util/Boilerplate'),
+      npm = require('npm');
 
   var TEMPLATE_DIRECTORY = __dirname + '/../template';
 
@@ -50,7 +51,25 @@ module.exports = function(callback) {
       if (error) {
         callback(error);
       } else {
-        fs.writeFile(process.cwd() + '/.gitignore', 'node_modules', 'utf8', callback);
+        fs.writeFile(process.cwd() + '/.gitignore', 'node_modules', 'utf8', function(error) {
+          if (error) {
+            callback(error);
+          } else {
+            fs.chmod(process.cwd() + '/grunt.sh', '755', function(error) {
+              if (error) {
+                callback(error);
+              } else {
+                npm.load(function (error, npm) {
+                  if (error) {
+                    callback(error);
+                  } else {
+                    npm.commands.install(callback);
+                  }
+                });
+              }
+            });
+          }
+        });
       }
     });
   });
