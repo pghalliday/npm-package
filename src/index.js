@@ -1,6 +1,7 @@
 module.exports = function(callback) {
   var prompt = require('prompt'),
       path = require('path'),
+      fs = require('fs'),
       Boilerplate = require('./util/Boilerplate');
 
   var TEMPLATE_DIRECTORY = __dirname + '/../template';
@@ -45,6 +46,12 @@ module.exports = function(callback) {
       with: result.shortDescription
     }]);
     
-    boilerplate.generate(process.cwd(), callback);
+    boilerplate.generate(process.cwd(), function(error) {
+      if (error) {
+        callback(error);
+      } else {
+        fs.writeFile(process.cwd() + '/.gitignore', 'node_modules', 'utf8', callback);
+      }
+    });
   });
 };

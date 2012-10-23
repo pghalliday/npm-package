@@ -60,7 +60,6 @@ describe('npm-package', function() {
         done(savedError);
       } else {
         var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
-        expect(newFiles).to.deep.equal(files);
         for (var i = 0; i < files.length; i++) {
           if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
             expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
@@ -105,7 +104,6 @@ describe('npm-package', function() {
         done(savedError);
       } else {
         var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
-        expect(newFiles).to.deep.equal(files);
         for (var i = 0; i < files.length; i++) {
           if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
             expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
@@ -119,6 +117,35 @@ describe('npm-package', function() {
           }
         }
         done();
+      }
+    });
+  });
+  
+  it('should create a .gitignore file to ignore the node_modules file', function(done) {
+    var savedError;
+    var files = getFiles(TEMPLATE_DIRECTORY);
+    var child = spawn('node', ['../../../bin/npm-package'], {
+      cwd: TEST_OUTPUT_DIRECTORY,
+      stdio: 'pipe',
+      detached: false
+    });
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', function(data) {
+      savedError = new Error(data);
+    });
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', function(data) {
+      child.stdin.write('\n');
+    });
+    child.on('exit', function(code, signal) {
+      if (savedError) {
+        done(savedError);
+      } else {
+        fs.readFile(TEST_OUTPUT_DIRECTORY + '/.gitignore', 'utf8', function(error, file) {
+          expect(error).to.equal(null);
+          expect(file).to.equal('node_modules');
+          done();
+        });
       }
     });
   });
