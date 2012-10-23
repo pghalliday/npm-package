@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+var npmPackage = require('../src/index.js');
+npmPackage(function(error) {
+  if (error) {
+    console.error(error);
+  }
+});

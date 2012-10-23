@@ -3,9 +3,9 @@ var expect = require('chai').expect,
     Checklist = require('checklist'),
     fs = require('fs-extra');
 
-var templateDirectory = './template',
-    testOutputDirectoryName = 'TestOutput',
-    testOutputDirectory = __dirname + '/' + testOutputDirectoryName;
+var TEMPLATE_DIRECTORY = './template',
+    TEST_OUTPUT_DIRECTORY_NAME = 'TestOutput',
+    TEST_OUTPUT_DIRECTORY = __dirname + '/../sandbox/' + TEST_OUTPUT_DIRECTORY_NAME;
 
 function getFiles(directory, parent, result) {
   if (!result) {
@@ -24,26 +24,26 @@ function getFiles(directory, parent, result) {
 
 describe('npm-package', function() {
   beforeEach(function(done) {
-    fs.exists(testOutputDirectory, function(exists) {
+    fs.exists(TEST_OUTPUT_DIRECTORY, function(exists) {
       if (exists) {
-        fs.remove(testOutputDirectory, function(error) {
+        fs.remove(TEST_OUTPUT_DIRECTORY, function(error) {
           if (error) {
             done(error);
           } else {
-            fs.mkdirp(testOutputDirectory, done);
+            fs.mkdirp(TEST_OUTPUT_DIRECTORY, done);
           }
         });
       } else {
-        fs.mkdirp(testOutputDirectory, done);
+        fs.mkdirp(TEST_OUTPUT_DIRECTORY, done);
       }
     });
   });
 
   it('should copy the template files and folders into the current directory and apply defaults', function(done) {
     var savedError;
-    var files = getFiles(templateDirectory);
-    var child = spawn('node', ['../../../'], {
-      cwd: testOutputDirectory,
+    var files = getFiles(TEMPLATE_DIRECTORY);
+    var child = spawn('node', ['../../../bin/npm-package'], {
+      cwd: TEST_OUTPUT_DIRECTORY,
       stdio: 'pipe',
       detached: false
     });
@@ -59,17 +59,17 @@ describe('npm-package', function() {
       if (savedError) {
         done(savedError);
       } else {
-        var newFiles = getFiles(testOutputDirectory);
+        var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
         expect(newFiles).to.deep.equal(files);
         for (var i = 0; i < files.length; i++) {
-          if (fs.statSync(templateDirectory + '/' + files[i]).isDirectory()) {
-            expect(fs.statSync(templateDirectory + '/' + files[i]).isDirectory()).to.equal(true);
+          if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
+            expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
           } else {
-            var templateFile = fs.readFileSync(templateDirectory + '/' + files[i], 'utf8');
-            // templateFile = templateFile.replace('%PACKAGE_NAME%', testOutputDirectoryName);
-            // templateFile = templateFile.replace('%REPOSITORY_NAME%', testOutputDirectoryName);
-            // templateFile = templateFile.replace('%SHORT_DESCRIPTION%', '');
-            var outputFile = fs.readFileSync(testOutputDirectory + '/' + files[i], 'utf8');
+            var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
+            templateFile = templateFile.replace('%PACKAGE_NAME%', TEST_OUTPUT_DIRECTORY_NAME);
+            templateFile = templateFile.replace('%REPOSITORY_NAME%', TEST_OUTPUT_DIRECTORY_NAME);
+            templateFile = templateFile.replace('%SHORT_DESCRIPTION%', '');
+            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + files[i], 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
         }
@@ -78,39 +78,22 @@ describe('npm-package', function() {
     });
   });
 
-  it('should accept input', function(done) {
-    var checklist = new Checklist([
-      'npm-package: Package name: (' + testOutputDirectoryName + ') ',
-      'npm-package: Repository name: (' + testOutputDirectoryName + ') ',
-      'npm-package: Short description: ',
-      'apple\n' +
-      'banana\n' +
-      'pear\n',
-      0,
-      null
-    ], done);
-    var result = '';
-    var child = spawn('node', ['../../../'], {
-      cwd: testOutputDirectory,
+  it('should copy the template files and folders into the current directory and apply fields suplied to stdin', function(done) {
+    var savedError;
+    var files = getFiles(TEMPLATE_DIRECTORY);
+    var child = spawn('node', ['../../../bin/npm-package'], {
+      cwd: TEST_OUTPUT_DIRECTORY,
       stdio: 'pipe',
       detached: false
     });
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', function(data) {
-      // should not get here so this will
-      // cause checklist to report the error
-      checklist.check(new Error(data));
+      savedError = new Error(data);
     });
     child.stdout.setEncoding('utf8');
     child.stdout.once('data', function(data) {
-      checklist.check(data);
       child.stdout.once('data', function(data) {
-        checklist.check(data);
         child.stdout.once('data', function(data) {
-          checklist.check(data);
-          child.stdout.on('data', function(data) {
-            result += data;
-          });
           child.stdin.write('pear\n');
         });
         child.stdin.write('banana\n');
@@ -118,9 +101,25 @@ describe('npm-package', function() {
       child.stdin.write('apple\n');
     });
     child.on('exit', function(code, signal) {
-      checklist.check(result);
-      checklist.check(code);
-      checklist.check(signal);
+      if (savedError) {
+        done(savedError);
+      } else {
+        var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
+        expect(newFiles).to.deep.equal(files);
+        for (var i = 0; i < files.length; i++) {
+          if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
+            expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
+          } else {
+            var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
+            templateFile = templateFile.replace('%PACKAGE_NAME%', 'apple');
+            templateFile = templateFile.replace('%REPOSITORY_NAME%', 'banana');
+            templateFile = templateFile.replace('%SHORT_DESCRIPTION%', 'pear');
+            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + files[i], 'utf8');
+            expect(outputFile).to.equal(templateFile);
+          }
+        }
+        done();
+      }
     });
   });
 });

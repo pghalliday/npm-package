@@ -5,7 +5,9 @@ Command line tool to intitiate a blank npm compatible package with my preferred 
 
 ## Features
 
-- ?
+- should copy the template files into the current directory
+- should default repository and package names based on the current directory name
+- should take command line input for package specific fields
 
 ## Installation
 
@@ -21,11 +23,8 @@ var SOMETHING = require('PACKAGE_NAME');
 
 ## Roadmap
 
-- should copy the template files into the current directory
-- should take command line input for package specific fields
-- should default repository and package names based on the current directory name
 - should use a default configuration for the author information if it exists
-- should allow keywords to be added
+- should allow package.json keywords to be added
 - should create default configuration if it does not exist
 - should update default configuration if requested
 
