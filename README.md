@@ -12,13 +12,18 @@ Command line tool to intitiate a blank npm compatible package with my preferred 
 ## Installation
 
 ```
-npm install npm-package
+npm install -g npm-package
 ```
 
-## API
+## Usage
 
-```javascript
-var SOMETHING = require('PACKAGE_NAME');
+```
+V:\GitHub\test-npm-package>npm-package
+npm-package: Package name: (test-npm-package)
+npm-package: Repository name: (test-npm-package)
+npm-package: Short description: A short description
+
+V:\GitHub\test-npm-package>
 ```
 
 ## Roadmap
