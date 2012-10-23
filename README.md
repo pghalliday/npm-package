@@ -1,5 +1,5 @@
-npm-package-boilerplate
-=======================
+npm-package
+===========
 
 Command line tool to intitiate a blank npm compatible package with my preferred structure, etc
 
