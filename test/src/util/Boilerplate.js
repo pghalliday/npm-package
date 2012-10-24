@@ -114,5 +114,9 @@ describe('Boilerplate', function() {
         done();
       });
     });
+
+    after(function(done) {
+      fs.remove(TEST_OUTPUT_DIRECTORY, done);
+    });
   });
 });

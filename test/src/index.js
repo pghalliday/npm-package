@@ -62,13 +62,13 @@ describe('npm-package', function() {
         var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
         for (var i = 0; i < files.length; i++) {
           if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
-            expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
+            expect(fs.statSync(TEST_OUTPUT_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
           } else {
             var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
             templateFile = templateFile.replace(/%PACKAGE_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
             templateFile = templateFile.replace(/%REPOSITORY_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
             templateFile = templateFile.replace(/%SHORT_DESCRIPTION%/g, '');
-            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + files[i], 'utf8');
+            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + newFiles[i], 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
         }
@@ -106,13 +106,13 @@ describe('npm-package', function() {
         var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
         for (var i = 0; i < files.length; i++) {
           if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
-            expect(fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
+            expect(fs.statSync(TEST_OUTPUT_DIRECTORY + '/' + newFiles[i]).isDirectory()).to.equal(true);
           } else {
             var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
             templateFile = templateFile.replace(/%PACKAGE_NAME%/g, 'apple');
             templateFile = templateFile.replace(/%REPOSITORY_NAME%/g, 'banana');
             templateFile = templateFile.replace(/%SHORT_DESCRIPTION%/g, 'pear');
-            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + files[i], 'utf8');
+            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + newFiles[i], 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
         }
@@ -143,45 +143,52 @@ describe('npm-package', function() {
       } else {
         fs.readFile(TEST_OUTPUT_DIRECTORY + '/.gitignore', 'utf8', function(error, file) {
           expect(error).to.equal(null);
-          expect(file).to.equal('node_modules');
+          expect(file.indexOf('node_modules')).to.not.equal(-1);
           done();
         });
       }
     });
   });
   
-  it('should make grunt.sh or grunt.bat executable', function(done) {
-    var savedError;
-    var files = getFiles(TEMPLATE_DIRECTORY);
-    var child = spawn('node', ['../../../bin/npm-package'], {
-      cwd: TEST_OUTPUT_DIRECTORY,
-      stdio: 'pipe',
-      detached: false
-    });
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', function(data) {
-      savedError = new Error(data);
-    });
-    child.stdout.setEncoding('utf8');
-    child.stdout.on('data', function(data) {
-      child.stdin.write('\n');
-    });
-    child.on('exit', function(code, signal) {
-      if (savedError) {
-        done(savedError);
-      } else {
-        var gruntCommand = process.platform === 'win32' ? '.\\grunt.bat' : './grunt.sh';
-        var child = spawn(gruntCommand, [], {
-          cwd: TEST_OUTPUT_DIRECTORY,
-          stdio: 'pipe',
-          detached: false
-        });
-        child.on('exit', function(code, signal) {
-          expect(code).to.equal(0);
-          done();
-        });
-      }
-    });
+  it('should make grunt.sh executable on *nix', function(done) {
+    if (process.platform === 'win32') {
+      done();
+    } else {
+      var savedError;
+      var files = getFiles(TEMPLATE_DIRECTORY);
+      var child = spawn('node', ['../../../bin/npm-package'], {
+        cwd: TEST_OUTPUT_DIRECTORY,
+        stdio: 'pipe',
+        detached: false
+      });
+      child.stderr.setEncoding('utf8');
+      child.stderr.on('data', function(data) {
+        savedError = new Error(data);
+      });
+      child.stdout.setEncoding('utf8');
+      child.stdout.on('data', function(data) {
+        child.stdin.write('\n');
+      });
+      child.on('exit', function(code, signal) {
+        if (savedError) {
+          done(savedError);
+        } else {
+          var child = spawn('./grunt.sh', [], {
+            cwd: TEST_OUTPUT_DIRECTORY,
+            stdio: 'pipe',
+            detached: false
+          });
+          child.on('exit', function(code, signal) {
+            expect(code).to.not.equal(127);
+            done();
+          });
+        }
+      });
+    }
+  });
+
+  after(function(done) {
+    fs.remove(TEST_OUTPUT_DIRECTORY, done);
   });
 });
     

@@ -1,7 +1,7 @@
 {
   "name": "npm-package",
   "description": "Command line tool to intitiate a blank npm compatible package with my preferred structure, etc",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "homepage": "https://github.com/pghalliday/npm-package.git",
   "author": {
     "name": "Peter Halliday",
@@ -34,8 +34,7 @@
   "dependencies": {
     "prompt": "0.2.8",
     "fs-extra": "~0.3.1",
-    "checklist": "0.0.5",
-    "npm": "~1.1.64"
+    "checklist": "0.0.5"
   },
   "devDependencies": {
     "grunt": "0.3.17",

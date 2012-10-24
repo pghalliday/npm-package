@@ -2,8 +2,7 @@ module.exports = function(callback) {
   var prompt = require('prompt'),
       path = require('path'),
       fs = require('fs'),
-      Boilerplate = require('./util/Boilerplate'),
-      npm = require('npm');
+      Boilerplate = require('./util/Boilerplate');
 
   var TEMPLATE_DIRECTORY = __dirname + '/../template';
 
@@ -45,31 +44,16 @@ module.exports = function(callback) {
     }, {
       what: '%SHORT_DESCRIPTION%',
       with: result.shortDescription
+    }, {
+      what: '%GITIGNORE%',
+      with: '.gitignore'
     }]);
     
     boilerplate.generate(process.cwd(), function(error) {
       if (error) {
         callback(error);
       } else {
-        fs.writeFile(process.cwd() + '/.gitignore', 'node_modules', 'utf8', function(error) {
-          if (error) {
-            callback(error);
-          } else {
-            fs.chmod(process.cwd() + '/grunt.sh', '755', function(error) {
-              if (error) {
-                callback(error);
-              } else {
-                npm.load(function (error, npm) {
-                  if (error) {
-                    callback(error);
-                  } else {
-                    npm.commands.install(callback);
-                  }
-                });
-              }
-            });
-          }
-        });
+        fs.chmod(process.cwd() + '/grunt.sh', '755', callback);
       }
     });
   });
