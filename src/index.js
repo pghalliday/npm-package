@@ -54,6 +54,7 @@ module.exports = function(callback) {
         callback(error);
       } else {
         fs.chmod(process.cwd() + '/grunt.sh', '755', callback);
+        callback();
       }
     });
   });

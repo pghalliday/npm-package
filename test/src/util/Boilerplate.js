@@ -1,5 +1,6 @@
 var expect = require('chai').expect,
     fs = require('fs-extra'),
+    Checklist = require('checklist'),
     Boilerplate = require('../../../src/util/Boilerplate');
 
 var TEST_TEMPLATE_DIRECTORY = __dirname + '/../../sandbox/TestTemplate',
@@ -56,18 +57,20 @@ describe('Boilerplate', function() {
       var boilerplate = new Boilerplate(TEST_TEMPLATE_DIRECTORY);
       boilerplate.generate(TEST_OUTPUT_DIRECTORY, function(error) {
         expect(error).to.be.an('undefined');
-        var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
-        expect(newFiles).to.deep.equal(files);
+        var checklist = new Checklist(getFiles(TEST_OUTPUT_DIRECTORY), done);
         for (var i = 0; i < files.length; i++) {
-          if (fs.statSync(TEST_TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
-            expect(fs.statSync(TEST_TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
+          var path = files[i];
+          var templatePath = TEST_TEMPLATE_DIRECTORY + '/' + path;
+          var outputPath = TEST_OUTPUT_DIRECTORY + '/' + path;
+          if (fs.statSync(templatePath).isDirectory()) {
+            expect(fs.statSync(outputPath).isDirectory()).to.equal(true);
           } else {
-            var templateFile = fs.readFileSync(TEST_TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
-            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + files[i], 'utf8');
+            var templateFile = fs.readFileSync(templatePath, 'utf8');
+            var outputFile = fs.readFileSync(outputPath, 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
+          checklist.check(path);
         }        
-        done();
       });
     });
 
@@ -75,30 +78,24 @@ describe('Boilerplate', function() {
       var boilerplate = new Boilerplate(TEST_TEMPLATE_DIRECTORY, REPLACEMENTS);
       boilerplate.generate(TEST_OUTPUT_DIRECTORY, function(error) {
         expect(error).to.be.an('undefined');
-        var expectedFiles = [];
-        files.forEach(function(file) {
-          file = file.replace(/l/g, 'r');
-          file = file.replace(/foo/g, 'foo2');
-          file = file.replace(/apple/g, 'apple2');
-          expectedFiles.push(file);
-        });
-        var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
-        expect(newFiles).to.deep.equal(expectedFiles);
+        var checklist = new Checklist(getFiles(TEST_OUTPUT_DIRECTORY), done);
         for (var i = 0; i < files.length; i++) {
-          var templatePath = TEST_TEMPLATE_DIRECTORY + '/' + files[i];
-          var outputPath = TEST_OUTPUT_DIRECTORY + '/' + newFiles[i];
+          var path = files[i];
+          var templatePath = TEST_TEMPLATE_DIRECTORY + '/' + path;
+          path = path.replace(/l/g, 'r');
+          path = path.replace(/foo/g, 'foo2');
+          var outputPath = TEST_OUTPUT_DIRECTORY + '/' + path;
           if (fs.statSync(templatePath).isDirectory()) {
             expect(fs.statSync(outputPath).isDirectory()).to.equal(true);
           } else {
             var templateFile = fs.readFileSync(templatePath, 'utf8');
             templateFile = templateFile.replace(/l/g, 'r');
             templateFile = templateFile.replace(/foo/g, 'foo2');
-            templateFile = templateFile.replace(/apple/g, 'apple2');
             var outputFile = fs.readFileSync(outputPath, 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
+          checklist.check(path);
         }        
-        done();
       });
     });
 

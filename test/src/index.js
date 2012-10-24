@@ -59,20 +59,28 @@ describe('npm-package', function() {
       if (savedError) {
         done(savedError);
       } else {
-        var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
+        var checklist = new Checklist(getFiles(TEST_OUTPUT_DIRECTORY), done);
         for (var i = 0; i < files.length; i++) {
-          if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
-            expect(fs.statSync(TEST_OUTPUT_DIRECTORY + '/' + files[i]).isDirectory()).to.equal(true);
+          var path = files[i];
+          var templatePath = TEMPLATE_DIRECTORY + '/' + path;
+          path = path.replace(/%GITIGNORE%/g, '.gitignore');
+          path = path.replace(/%PACKAGE_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
+          path = path.replace(/%REPOSITORY_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
+          path = path.replace(/%SHORT_DESCRIPTION%/g, '');
+          var outputPath = TEST_OUTPUT_DIRECTORY + '/' + path;
+          if (fs.statSync(templatePath).isDirectory()) {
+            expect(fs.statSync(outputPath).isDirectory()).to.equal(true);
           } else {
-            var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
+            var templateFile = fs.readFileSync(templatePath, 'utf8');
+            templateFile = templateFile.replace(/%GITIGNORE%/g, '.gitignore');
             templateFile = templateFile.replace(/%PACKAGE_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
             templateFile = templateFile.replace(/%REPOSITORY_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
             templateFile = templateFile.replace(/%SHORT_DESCRIPTION%/g, '');
-            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + newFiles[i], 'utf8');
+            var outputFile = fs.readFileSync(outputPath, 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
+          checklist.check(path);
         }
-        done();
       }
     });
   });
@@ -103,20 +111,28 @@ describe('npm-package', function() {
       if (savedError) {
         done(savedError);
       } else {
-        var newFiles = getFiles(TEST_OUTPUT_DIRECTORY);
+        var checklist = new Checklist(getFiles(TEST_OUTPUT_DIRECTORY), done);
         for (var i = 0; i < files.length; i++) {
-          if (fs.statSync(TEMPLATE_DIRECTORY + '/' + files[i]).isDirectory()) {
-            expect(fs.statSync(TEST_OUTPUT_DIRECTORY + '/' + newFiles[i]).isDirectory()).to.equal(true);
+          var path = files[i];
+          var templatePath = TEMPLATE_DIRECTORY + '/' + path;
+          path = path.replace(/%GITIGNORE%/g, '.gitignore');
+          path = path.replace(/%PACKAGE_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
+          path = path.replace(/%REPOSITORY_NAME%/g, TEST_OUTPUT_DIRECTORY_NAME);
+          path = path.replace(/%SHORT_DESCRIPTION%/g, '');
+          var outputPath = TEST_OUTPUT_DIRECTORY + '/' + path;
+          if (fs.statSync(templatePath).isDirectory()) {
+            expect(fs.statSync(outputPath).isDirectory()).to.equal(true);
           } else {
-            var templateFile = fs.readFileSync(TEMPLATE_DIRECTORY + '/' + files[i], 'utf8');
+            var templateFile = fs.readFileSync(templatePath, 'utf8');
+            templateFile = templateFile.replace(/%GITIGNORE%/g, '.gitignore');
             templateFile = templateFile.replace(/%PACKAGE_NAME%/g, 'apple');
             templateFile = templateFile.replace(/%REPOSITORY_NAME%/g, 'banana');
             templateFile = templateFile.replace(/%SHORT_DESCRIPTION%/g, 'pear');
-            var outputFile = fs.readFileSync(TEST_OUTPUT_DIRECTORY + '/' + newFiles[i], 'utf8');
+            var outputFile = fs.readFileSync(outputPath, 'utf8');
             expect(outputFile).to.equal(templateFile);
           }
+          checklist.check(path);
         }
-        done();
       }
     });
   });
@@ -173,13 +189,21 @@ describe('npm-package', function() {
         if (savedError) {
           done(savedError);
         } else {
+          var errorData = '';
           var child = spawn('./grunt.sh', [], {
             cwd: TEST_OUTPUT_DIRECTORY,
             stdio: 'pipe',
             detached: false
           });
+          child.stderr.setEncoding('utf8');
+          child.stderr.on('data', function(data) {
+            errorData += data;
+          });
           child.on('exit', function(code, signal) {
-            expect(code).to.not.equal(127);
+            // If the shell script is executable then we should
+            // get the grunt not found error as npm install has
+            // not been run yet
+            expect(errorData).to.match(/node_modules\/.bin\/grunt: not found/);
             done();
           });
         }
