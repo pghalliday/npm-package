@@ -2,7 +2,7 @@ module.exports = function(callback) {
   var prompt = require('prompt'),
       path = require('path'),
       fs = require('fs'),
-      Boilerplate = require('./util/Boilerplate');
+      Boilerplate = require('simple-boilerplate');
 
   var TEMPLATE_DIRECTORY = __dirname + '/../template';
 
